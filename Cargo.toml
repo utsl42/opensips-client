@@ -1,0 +1,19 @@
+[package]
+name = "opensips-client"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+jsonrpsee = {version = "0.20.1", features = ["full"]}
+tokio="1"
+serde="1"
+serde_derive = "1"
+serde_repr = "0"
+
+[dev-dependencies]
+anyhow = "1"
+tracing = "0"
+tracing-subscriber = {version = "0", features = ["env-filter"]}
+serde_json = "1"
