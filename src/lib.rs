@@ -96,6 +96,25 @@ pub trait OpenSIPS {
     fn dlg_list(&self) -> Result<dialog::ListResponse, Error>;
     #[method(name="dlg_list",param_kind=map)]
     fn dlg_list_record(&self, callid: String, from_tag: String) -> Result<dialog::ListRecordResponse, Error>;
+
+    // b2b_entities module
+    #[method(name="b2be_list")]
+    fn b2be_list(&self) -> Result<String, Error>;
+    // OpenSIPS doesn't appear to accept `null` for optional parameters, which is what Option would send, so leaving
+    // most of the optional types in every method for now.
+    #[method(name="ua_session_client_start",param_kind=map)]
+    fn ua_session_client_start(&self, ruri: String, to: String, from: String, proxy: String, body: String, extra_headers: Vec<String>, content_type: String, flags: String) -> Result<String, Error>;
+    #[method(name="ua_session_reply",param_kind=map)]
+    fn ua_session_reply(&self, key: String, method: String, code: usize, reason: String, body: String, extra_headers: Vec<String>, content_type: String) -> Result<String, Error>;
+    #[method(name="ua_session_update",param_kind=map)]
+    fn ua_session_update(&self, key: String, method: String, body: String, extra_headers: Vec<String>, content_type: String) -> Result<String, Error>;
+    #[method(name="ua_session_terminate",param_kind=map)]
+    fn ua_session_terminate(&self, key: String, extra_headers: Vec<String>) -> Result<String, Error>;
+    #[method(name="ua_session_list",param_kind=map)]
+    fn ua_session_list(&self) -> Result<Vec<b2b_entities::UASession>, Error>;
+    #[method(name="ua_session_list",param_kind=map)]
+    fn ua_session_list_with_key(&self, key: String) -> Result<b2b_entities::UASession, Error>;
+
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -454,5 +473,66 @@ pub mod dialog {
     #[serde(rename_all = "PascalCase")]
     pub struct ListRecordResponse {
         pub dialog: Dialog,
+    }
+}
+
+pub mod b2b_entities {
+    use super::*;
+
+    #[derive(Clone, Debug, Serialize, Deserialize)]
+    pub struct Contact {
+        pub caller: String,
+        pub callee: String,
+    }
+
+    #[derive(Clone, Debug, Serialize, Deserialize)]
+    pub struct Cseq {
+        pub caller: i64,
+        pub callee: i64,
+    }
+
+    #[derive(Copy, Clone, Serialize_repr, Deserialize_repr, PartialEq, Eq, Debug)]
+    #[repr(u8)]
+    pub enum DBFlag {
+        NoUpdateDB = 0,
+        UpdateDB = 1,
+        InsertDB = 2,
+    }
+
+    #[derive(Copy, Clone, Serialize_repr, Deserialize_repr, PartialEq, Eq, Debug)]
+    #[repr(u8)]
+    pub enum B2BState {
+        Undefined = 0,
+        New = 1, /* New dialog, no reply received yet */
+        NewAuth = 2, /* New dialog with auth info, no reply received yet */
+        Early = 3, /* Early dialog, provisional response received */
+        Confirmed = 4, /* Confirmed dialog, 2xx received */
+        Established = 5, /* Established dialog, sent or received ACK received */
+        Modified = 6, /* ReInvite inside dialog */
+        Terminated = 7, /* Terminated dialog */
+    }
+
+    #[derive(Clone, Debug, Serialize, Deserialize)]
+    pub struct UASession {
+        pub dlg: i64,
+        pub logic_key: String,
+        pub mod_name: String,
+        pub state: B2BState,
+        pub last_invite_cseq: usize,
+        pub last_method: usize,
+        pub last_reply_code: usize,
+        pub db_flag: DBFlag,
+        pub ruri: String,
+        pub callid: String,
+        pub from: String,
+        pub from_uri: String,
+        pub from_tag: String,
+        pub to: String,
+        pub to_uri: String,
+        pub to_tag: String,
+        pub cseq: Cseq,
+        pub contact: Contact,
+        pub send_sock: String,
+        pub tm_tran: String,
     }
 }

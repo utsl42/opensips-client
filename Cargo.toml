@@ -11,9 +11,9 @@ tokio="1"
 serde="1"
 serde_derive = "1"
 serde_repr = "0"
+serde_json = "1"
+tracing = "0"
 
 [dev-dependencies]
 anyhow = "1"
-tracing = "0"
 tracing-subscriber = {version = "0", features = ["env-filter"]}
-serde_json = "1"
