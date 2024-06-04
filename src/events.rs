@@ -13,8 +13,8 @@ pub struct UlContact {
     #[serde(default)]
     pub received: String,
     #[serde(default)]
-    pub path: String,
-    pub qval: u64,
+    pub path: Option<String>,
+    pub qval: i64,
     pub user_agent: String,
     pub socket: String,
     pub bflags: i64,
