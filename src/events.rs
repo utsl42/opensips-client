@@ -11,7 +11,7 @@ pub struct UlContact {
     pub aor: String,
     pub uri: String,
     #[serde(default)]
-    pub received: String,
+    pub received: Option<String>,
     #[serde(default)]
     pub path: Option<String>,
     pub qval: i64,
